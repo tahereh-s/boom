@@ -1,79 +1,132 @@
 @import "tailwindcss";
 
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+/* =========================
+   FONTS (LOCAL + SYSTEM)
+========================= */
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazirmatn/Vazirmatn-FD-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
 }
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazirmatn/Vazirmatn-FD-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazirmatn/Vazirmatn-FD-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazirmatn/Vazirmatn-FD-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* =========================
+   THEME TOKENS
+========================= */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  /* 🌍 FONT SYSTEM (IMPORTANT) */
+  --font-sans: "Vazirmatn", var(--font-inter), system-ui, sans-serif;
+}
+
+/* =========================
+   LIGHT MODE
+========================= */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: hsl(40 20% 98%);
+    --foreground: hsl(222.2 25% 12%);
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(222.2 25% 12%);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --primary: hsl(265 75% 55%);
+    --primary-foreground: hsl(0 0% 100%);
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
+    --accent: hsl(28 95% 60%);
+    --accent-foreground: hsl(0 0% 100%);
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: hsl(220 14% 96%);
+    --muted-foreground: hsl(220 10% 45%);
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 262 83% 96%;
-    --accent-foreground: 262 83% 30%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 262 83% 58%;
-
-    --radius: 1rem;
+    --border: hsl(220 13% 90%);
+    --ring: hsl(265 75% 55%);
   }
 
+  /* =========================
+     DARK MODE
+  ========================= */
+
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: hsl(222 35% 9%);
+    --foreground: hsl(210 40% 96%);
 
-    --card: 222 47% 13%;
-    --card-foreground: 210 40% 98%;
+    --card: hsl(222 35% 11%);
+    --card-foreground: hsl(210 40% 96%);
 
-    --popover: 222 47% 13%;
-    --popover-foreground: 210 40% 98%;
+    --primary: hsl(265 70% 62%);
+    --primary-foreground: hsl(0 0% 100%);
 
-    --primary: 263 70% 60%;
-    --primary-foreground: 210 40% 98%;
+    --accent: hsl(28 90% 58%);
+    --accent-foreground: hsl(0 0% 100%);
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --muted: hsl(217 20% 16%);
+    --muted-foreground: hsl(215 15% 65%);
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --border: hsl(217 20% 18%);
+    --ring: hsl(265 70% 62%);
+  }
 
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+  /* =========================
+     BASE
+  ========================= */
 
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 263 70% 60%;
+  html {
+    direction: rtl; /* default فارسی */
+  }
+
+  html[lang="en"] {
+    direction: ltr;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
   }
 
   * {
     border-color: hsl(var(--border));
-  }
-
-  body {
-    background: hsl(var(--background));
-    color: hsl(var(--foreground));
   }
 }
