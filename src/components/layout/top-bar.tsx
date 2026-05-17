@@ -1,8 +1,10 @@
 export default function TopBar() {
   return (
-    <div className="sticky top-0 border-b bg-background p-3 flex justify-between">
-      <span className="font-bold">Boom</span>
-      <span>🔍</span>
-    </div>
+    <header className="sticky top-0 z-50 h-14 border-b bg-background/80 backdrop-blur-md">
+      <div className="flex h-full items-center justify-between px-4">
+        <span className="text-lg font-bold">Boom</span>
+        <button>🔍</button>
+      </div>
+    </header>
   );
 }
