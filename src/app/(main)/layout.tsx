@@ -1,5 +1,6 @@
-import TopBar from "@/components/layout/top-bar";
 import BottomNav from "@/components/layout/bottom-nav";
+import TopBar from "@/components/layout/top-bar";
+
 
 export default function MainLayout({
   children,
