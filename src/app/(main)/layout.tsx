@@ -11,7 +11,7 @@ export default function MainLayout({
 
       <TopBar />
 
-      <main className="mx-auto w-full max-w-xl px-3 pt-4 pb-24">
+      <main className="flex-1 mx-auto w-full max-w-xl px-3 pt-2 pb-24">
         {children}
       </main>
 
