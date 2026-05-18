@@ -13,6 +13,7 @@ import {
 export default function PostCard({ post }: any) {
   const [liked, setLiked] = useState(post.likedByMe);
   const [likes, setLikes] = useState(post.likes);
+  const [showHeart, setShowHeart] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [saved, setSaved] = useState(false);
   const [openComments, setOpenComments] = useState(false);
@@ -52,6 +53,19 @@ export default function PostCard({ post }: any) {
     // animation trigger
     setAnimating(true);
     setTimeout(() => setAnimating(false), 300);
+  };
+
+  const handleDoubleTap = () => {
+    if (!liked) {
+      setLiked(true);
+      setLikes((prev) => prev + 1);
+    }
+
+    setShowHeart(true);
+
+    setTimeout(() => {
+      setShowHeart(false);
+    }, 600);
   };
 
   return (
@@ -99,13 +113,26 @@ export default function PostCard({ post }: any) {
       </div>
 
       {/* IMAGE */}
-      <div className="relative aspect-square w-full bg-muted">
+      <div
+        className="relative aspect-square w-full bg-muted overflow-hidden"
+        onDoubleClick={handleDoubleTap}
+      >
         <Image
           src={post.image}
           alt="post"
           fill
           className="object-cover"
         />
+
+        {/* ❤️ HEART POPUP */}
+        {showHeart && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Heart
+              size={90}
+              className="text-red-500 fill-red-500 animate-in zoom-in-50 fade-in"
+            />
+          </div>
+        )}
       </div>
 
       {/* CONTENT */}
