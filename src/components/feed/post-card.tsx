@@ -11,13 +11,14 @@ import {
 
 import { getBookmarks, toggleBookmark } from "@/lib/bookmarks";
 import { addComment, getComments } from "@/lib/comments";
+import { usePostStore } from "@/store/post-store";
+import { currentUser } from "@/lib/current-user";
 
 export default function PostCard({ post }: any) {
   const [liked, setLiked] = useState(post.likedByMe || false);
   const [likes, setLikes] = useState(post.likes || 0);
 
   const [saved, setSaved] = useState(false);
-
   const [openComments, setOpenComments] = useState(false);
   const [input, setInput] = useState("");
 
@@ -25,6 +26,10 @@ export default function PostCard({ post }: any) {
 
   const [showHeart, setShowHeart] = useState(false);
   const [animating, setAnimating] = useState(false);
+
+  const removePost = usePostStore((state) => state.removePost);
+
+  const isOwner = post.user === currentUser.username;
 
   // lock scroll
   useEffect(() => {
@@ -75,10 +80,15 @@ export default function PostCard({ post }: any) {
     if (!input.trim()) return;
 
     addComment(post.id, input);
-
     setLocalComments(getComments(post.id));
-
     setInput("");
+  };
+
+  // DELETE POST
+  const handleDelete = () => {
+    if (confirm("این پست حذف شود؟")) {
+      removePost(post.id);
+    }
   };
 
   return (
@@ -118,7 +128,15 @@ export default function PostCard({ post }: any) {
 
         </div>
 
-        <button className="text-muted-foreground">•••</button>
+        <div className="flex items-center gap-2">
+          <button className="text-muted-foreground">•••</button>
+
+          {isOwner && (
+            <button onClick={handleDelete} className="text-red-500 text-sm">
+              حذف
+            </button>
+          )}
+        </div>
       </div>
 
       {/* IMAGE */}
@@ -150,8 +168,9 @@ export default function PostCard({ post }: any) {
 
             <button onClick={toggleLike}>
               <Heart
-                className={`transition ${liked ? "fill-red-500 text-red-500" : ""
-                  } ${animating ? "scale-125" : ""}`}
+                className={`transition ${
+                  liked ? "fill-red-500 text-red-500" : ""
+                } ${animating ? "scale-125" : ""}`}
               />
             </button>
 
@@ -201,7 +220,6 @@ export default function PostCard({ post }: any) {
       </div>
 
       {/* COMMENTS SHEET */}
-      {/* COMMENTS SHEET */}
       {openComments && (
         <div className="fixed inset-0 z-[9999] flex items-end">
 
@@ -225,7 +243,9 @@ export default function PostCard({ post }: any) {
               {localComments.map((c) => (
                 <div key={c.id} className="rounded-xl bg-muted p-3">
                   <p className="text-sm font-semibold">@{c.user}</p>
-                  <p className="text-sm text-muted-foreground">{c.text}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {c.text}
+                  </p>
                 </div>
               ))}
             </div>

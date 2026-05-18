@@ -1,29 +1,35 @@
 import { create } from "zustand";
-
 import { posts as initialPosts } from "@/lib/mock-data";
 
-const STORAGE_KEY = "boom-posts";
+export type Post = {
+  id: number;
+  user: string;
+  avatar: string;
+  verified: boolean;
+  image: string;
+  caption: string;
+  likes: number;
+  comments: number;
+  likedByMe?: boolean;
+  product?: { name: string; price: string } | null;
+};
 
-function loadPosts() {
-  if (typeof window === "undefined") return initialPosts;
+type PostStore = {
+  posts: Post[];
+  addPost: (post: Post) => void;
+  removePost: (id: number) => void;
+};
 
-  const saved = localStorage.getItem(STORAGE_KEY);
+export const usePostStore = create<PostStore>((set) => ({
+  posts: initialPosts,
 
-  return saved ? JSON.parse(saved) : initialPosts;
-}
+  addPost: (post) =>
+    set((state) => ({
+      posts: [post, ...state.posts],
+    })),
 
-function savePosts(posts: any) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-}
-
-export const usePostStore = create((set, get) => ({
-  posts: loadPosts(),
-
-  addPost: (post: any) => {
-    const updated = [post, ...get().posts];
-
-    set({ posts: updated });
-
-    savePosts(updated);
-  },
+  removePost: (id) =>
+    set((state) => ({
+      posts: state.posts.filter((p) => p.id !== id),
+    })),
 }));
