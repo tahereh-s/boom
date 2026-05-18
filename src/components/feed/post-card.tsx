@@ -2,66 +2,58 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
 import {
   Heart,
   MessageCircle,
   Bookmark,
   BadgeCheck,
 } from "lucide-react";
+
 import { getBookmarks, toggleBookmark } from "@/lib/bookmarks";
+import { addComment, getComments } from "@/lib/comments";
 
 export default function PostCard({ post }: any) {
-  const [liked, setLiked] = useState(post.likedByMe);
-  const [likes, setLikes] = useState(post.likes);
-  const [showHeart, setShowHeart] = useState(false);
-  const [animating, setAnimating] = useState(false);
+  const [liked, setLiked] = useState(post.likedByMe || false);
+  const [likes, setLikes] = useState(post.likes || 0);
+
   const [saved, setSaved] = useState(false);
 
   const [openComments, setOpenComments] = useState(false);
+  const [input, setInput] = useState("");
 
-  const comments = [
-    {
-      id: 1,
-      user: "ali",
-      text: "این محصول واقعاً ارزش خرید داره؟",
-    },
-    {
-      id: 2,
-      user: "sara",
-      text: "من دارمش، کیفیتش عالیه 👌",
-    },
-  ];
+  const [localComments, setLocalComments] = useState<any[]>([]);
 
-  // 🔒 lock scroll when modal open
+  const [showHeart, setShowHeart] = useState(false);
+  const [animating, setAnimating] = useState(false);
+
+  // lock scroll
   useEffect(() => {
-    if (openComments) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
+    document.body.style.overflow = openComments ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [openComments]);
 
+  // init data
   useEffect(() => {
     const savedPosts = getBookmarks();
     setSaved(savedPosts.includes(post.id));
-  }, []);
 
+    setLocalComments(getComments(post.id) || []);
+  }, [post.id]);
+
+  // LIKE
   const toggleLike = () => {
     const newLiked = !liked;
 
     setLiked(newLiked);
-    setLikes((prev) => (newLiked ? prev + 1 : prev - 1));
+    setLikes((prev: number) => (newLiked ? prev + 1 : prev - 1));
 
-    // animation trigger
     setAnimating(true);
-    setTimeout(() => setAnimating(false), 300);
+    setTimeout(() => setAnimating(false), 200);
   };
 
+  // DOUBLE TAP LIKE
   const handleDoubleTap = () => {
     if (!liked) {
       setLiked(true);
@@ -69,15 +61,24 @@ export default function PostCard({ post }: any) {
     }
 
     setShowHeart(true);
-
-    setTimeout(() => {
-      setShowHeart(false);
-    }, 600);
+    setTimeout(() => setShowHeart(false), 600);
   };
 
+  // SAVE
   const handleSave = () => {
     const updated = toggleBookmark(post.id);
     setSaved(updated.includes(post.id));
+  };
+
+  // ADD COMMENT
+  const handleAddComment = () => {
+    if (!input.trim()) return;
+
+    addComment(post.id, input);
+
+    setLocalComments(getComments(post.id));
+
+    setInput("");
   };
 
   return (
@@ -87,7 +88,6 @@ export default function PostCard({ post }: any) {
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-3">
 
-          {/* AVATAR */}
           <div className="relative h-11 w-11 overflow-hidden rounded-full">
             <Image
               src={post.avatar}
@@ -97,7 +97,6 @@ export default function PostCard({ post }: any) {
             />
           </div>
 
-          {/* USER */}
           <div>
             <div className="flex items-center gap-1">
               <span className="text-sm font-semibold">
@@ -119,14 +118,12 @@ export default function PostCard({ post }: any) {
 
         </div>
 
-        <button className="text-muted-foreground">
-          •••
-        </button>
+        <button className="text-muted-foreground">•••</button>
       </div>
 
       {/* IMAGE */}
       <div
-        className="relative aspect-square w-full bg-muted overflow-hidden"
+        className="relative aspect-square w-full overflow-hidden bg-muted"
         onDoubleClick={handleDoubleTap}
       >
         <Image
@@ -136,13 +133,9 @@ export default function PostCard({ post }: any) {
           className="object-cover"
         />
 
-        {/* ❤️ HEART POPUP */}
         {showHeart && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Heart
-              size={90}
-              className="text-red-500 fill-red-500 animate-in zoom-in-50 fade-in"
-            />
+            <Heart className="h-24 w-24 fill-red-500 text-red-500 animate-in zoom-in-50 fade-in" />
           </div>
         )}
       </div>
@@ -155,73 +148,47 @@ export default function PostCard({ post }: any) {
 
           <div className="flex items-center gap-5">
 
-            {/* LIKE */}
-            <button
-              onClick={toggleLike}
-              className="transition active:scale-90"
-            >
+            <button onClick={toggleLike}>
               <Heart
-                size={24}
-                className={`
-      transition-all duration-200
-      ${liked ? "fill-red-500 text-red-500" : ""}
-      ${animating ? "scale-125" : ""}
-    `}
+                className={`transition ${liked ? "fill-red-500 text-red-500" : ""
+                  } ${animating ? "scale-125" : ""}`}
               />
             </button>
 
-            {/* COMMENT */}
-            <button
-              onClick={() => setOpenComments(true)}
-              className="transition active:scale-90"
-            >
-              <MessageCircle size={23} />
+            <button onClick={() => setOpenComments(true)}>
+              <MessageCircle />
             </button>
 
           </div>
 
-          {/* SAVE */}
-          <button
-            onClick={handleSave}
-            className="transition active:scale-90"
-          >
-            <Bookmark
-              size={23}
-              className={saved ? "fill-foreground" : ""}
-            />
+          <button onClick={handleSave}>
+            <Bookmark className={saved ? "fill-foreground" : ""} />
           </button>
 
         </div>
 
         {/* STATS */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="font-medium">
-            {likes} پسند
-          </span>
-
+        <div className="text-sm">
+          <span className="font-medium">{likes} پسند</span>{" "}
           <span className="text-muted-foreground">
-            {post.comments} نظر
+            {localComments.length} نظر
           </span>
         </div>
 
         {/* CAPTION */}
         <p className="text-sm leading-7">
-          <span className="ml-2 font-semibold">
-            @{post.user}
-          </span>
+          <span className="ml-2 font-semibold">@{post.user}</span>
           {post.caption}
         </p>
 
         {/* PRODUCT */}
         {post.product && (
           <div className="flex items-center justify-between rounded-2xl border border-border bg-accent/20 p-3">
-
             <div>
               <p className="text-sm font-medium">
                 {post.product.name}
               </p>
-
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 مشاهده محصول
               </p>
             </div>
@@ -229,36 +196,33 @@ export default function PostCard({ post }: any) {
             <div className="text-sm font-bold text-primary">
               {post.product.price}
             </div>
-
           </div>
         )}
       </div>
 
-      {/* COMMENTS BOTTOM SHEET */}
+      {/* COMMENTS SHEET */}
+      {/* COMMENTS SHEET */}
       {openComments && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-[9999] flex items-end">
 
           {/* BACKDROP */}
           <div
             onClick={() => setOpenComments(false)}
-            className="absolute inset-0 bg-black/40 animate-in fade-in duration-200"
+            className="absolute inset-0 bg-black/50"
           />
 
           {/* SHEET */}
-          <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-background p-4
-      animate-in slide-in-from-bottom-5 duration-300">
+          <div className="relative w-full bg-background rounded-t-3xl p-4 flex flex-col max-h-[80vh] z-[10000]">
 
-            {/* HANDLE */}
             <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-muted" />
 
-            {/* TITLE */}
-            <h3 className="mb-4 text-center font-semibold">
+            <h3 className="mb-3 text-center font-semibold">
               نظرات
             </h3>
 
             {/* COMMENTS */}
-            <div className="max-h-60 space-y-3 overflow-y-auto no-scrollbar">
-              {comments.map((c) => (
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {localComments.map((c) => (
                 <div key={c.id} className="rounded-xl bg-muted p-3">
                   <p className="text-sm font-semibold">@{c.user}</p>
                   <p className="text-sm text-muted-foreground">{c.text}</p>
@@ -267,16 +231,22 @@ export default function PostCard({ post }: any) {
             </div>
 
             {/* INPUT */}
-            <div className="mt-4 flex gap-2">
+            <div className="mt-3 flex gap-2 border-t pt-3">
               <input
-                className="flex-1 rounded-xl border border-border bg-background p-2 text-sm"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="flex-1 rounded-xl border p-2 text-sm"
                 placeholder="نوشتن نظر..."
               />
 
-              <button className="rounded-xl bg-primary px-4 text-sm text-primary-foreground">
+              <button
+                onClick={handleAddComment}
+                className="rounded-xl bg-primary px-4 text-sm text-white"
+              >
                 ارسال
               </button>
             </div>
+
           </div>
         </div>
       )}
