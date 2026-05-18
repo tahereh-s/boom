@@ -8,7 +8,7 @@ import { usePostStore } from "@/store/post-store";
 export default function FeedList() {
   const posts = usePostStore((state) => state.posts);
   const addPost = usePostStore((state) => state.addPost);
-
+const setPosts = usePostStore((state) => state.setPosts);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -36,6 +36,14 @@ export default function FeedList() {
     loadPosts();
   }, []);
 
+useEffect(() => {
+  const init = async () => {
+    const firstPosts = await getPosts(1, 2);
+    setPosts(firstPosts);
+    setPage(2);
+  };
+  init();
+}, []);
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {

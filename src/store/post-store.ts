@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { posts as initialPosts } from "@/lib/mock-data";
 
 export type Post = {
   id: number;
@@ -10,18 +9,24 @@ export type Post = {
   caption: string;
   likes: number;
   comments: number;
-  likedByMe?: boolean;
-  product?: { name: string; price: string } | null;
+  likedByMe: boolean;
+  product?: {
+    name: string;
+    price: string;
+  } | null;
 };
 
 type PostStore = {
   posts: Post[];
   addPost: (post: Post) => void;
   removePost: (id: number) => void;
+  setPosts: (posts: Post[]) => void;
 };
 
 export const usePostStore = create<PostStore>((set) => ({
-  posts: initialPosts,
+  posts: [],
+
+  setPosts: (posts) => set({ posts }),
 
   addPost: (post) =>
     set((state) => ({
