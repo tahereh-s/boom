@@ -9,15 +9,15 @@ export const posts = [
 
     verified: true,
 
-    image:"https://www.100honar.com/Content/upload/img/org/1081/%D9%85%D8%AD%D9%81%D9%84-%D8%B9%DA%A9%D8%A7%D8%B3%DB%8C-30059-45346842844.jpg",
-      
+    image: "https://www.100honar.com/Content/upload/img/org/1081/%D9%85%D8%AD%D9%81%D9%84-%D8%B9%DA%A9%D8%A7%D8%B3%DB%8C-30059-45346842844.jpg",
+
     // "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop",
 
     caption:
       "این هدفونو چند روزه گرفتم و واقعاً کیفیتش عالیه 👌",
 
     likes: 124,
-
+    likedByMe: false,
     comments: 18,
 
     product: {
@@ -43,7 +43,7 @@ export const posts = [
       "امروز کافه جدیدی که پیدا کردم ☕",
 
     likes: 52,
-
+    likedByMe: true,
     comments: 7,
 
     product: null,

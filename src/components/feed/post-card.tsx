@@ -11,7 +11,9 @@ import {
 } from "lucide-react";
 
 export default function PostCard({ post }: any) {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(post.likedByMe);
+  const [likes, setLikes] = useState(post.likes);
+  const [animating, setAnimating] = useState(false);
   const [saved, setSaved] = useState(false);
   const [openComments, setOpenComments] = useState(false);
 
@@ -40,6 +42,17 @@ export default function PostCard({ post }: any) {
       document.body.style.overflow = "auto";
     };
   }, [openComments]);
+
+  const toggleLike = () => {
+    const newLiked = !liked;
+
+    setLiked(newLiked);
+    setLikes((prev) => (newLiked ? prev + 1 : prev - 1));
+
+    // animation trigger
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 300);
+  };
 
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
@@ -105,16 +118,16 @@ export default function PostCard({ post }: any) {
 
             {/* LIKE */}
             <button
-              onClick={() => setLiked(!liked)}
+              onClick={toggleLike}
               className="transition active:scale-90"
             >
               <Heart
                 size={24}
-                className={
-                  liked
-                    ? "fill-red-500 text-red-500"
-                    : "text-foreground"
-                }
+                className={`
+      transition-all duration-200
+      ${liked ? "fill-red-500 text-red-500" : ""}
+      ${animating ? "scale-125" : ""}
+    `}
               />
             </button>
 
@@ -146,7 +159,7 @@ export default function PostCard({ post }: any) {
         {/* STATS */}
         <div className="flex items-center gap-4 text-sm">
           <span className="font-medium">
-            {post.likes} پسند
+            {likes} پسند
           </span>
 
           <span className="text-muted-foreground">
