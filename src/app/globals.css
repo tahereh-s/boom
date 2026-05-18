@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+
+/* fonts + theme + base ... همینا فقط */
 
 /* =========================
    FONTS (LOCAL + SYSTEM)
