@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { ImagePlus } from "lucide-react";
 
+import { useRouter } from "next/navigation";
 import { currentUser } from "@/lib/current-user";
+import { usePostStore } from "@/store/post-store";
 
 export default function CreatePage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -12,13 +14,41 @@ export default function CreatePage() {
   const [caption, setCaption] = useState("");
   const [product, setProduct] = useState("");
   const [price, setPrice] = useState("");
-
+  const addPost = usePostStore((state) => state.addPost);
+  const router = useRouter();
   // 👇 seller can choose post type
   const [postType, setPostType] = useState<"normal" | "product">(
     "normal"
   );
 
   const isProductPost = postType === "product";
+
+
+  const handleSubmit = () => {
+    if (!selectedImage) return;
+
+    const newPost = {
+      id: Date.now(),
+      user: currentUser.username,
+      avatar: currentUser.avatar,
+      verified: currentUser.verified,
+      image: selectedImage,
+      caption,
+      likes: 0,
+      comments: 0,
+      likedByMe: false,
+      product: isProductPost
+        ? {
+          name: product,
+          price,
+        }
+        : null,
+    };
+
+    addPost(newPost);
+
+    router.push("/"); // یا فید اصلی
+  };
 
   return (
     <div className="space-y-6 py-4">
@@ -191,19 +221,19 @@ export default function CreatePage() {
 
         <div className="overflow-hidden rounded-2xl bg-muted aspect-square">
 
-  {selectedImage ? (
-    <img
-      src={selectedImage}
-      alt="preview"
-      className="h-full w-full object-cover"
-    />
-  ) : (
-    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-      پیش‌نمایش تصویر
-    </div>
-  )}
+          {selectedImage ? (
+            <img
+              src={selectedImage}
+              alt="preview"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              پیش‌نمایش تصویر
+            </div>
+          )}
 
-</div>
+        </div>
 
         {caption && (
           <p className="text-sm leading-7">
@@ -231,6 +261,7 @@ export default function CreatePage() {
 
       {/* SUBMIT */}
       <button
+        onClick={handleSubmit}
         className="h-12 w-full rounded-2xl bg-primary font-medium text-primary-foreground transition hover:opacity-90"
       >
         انتشار پست
