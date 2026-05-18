@@ -9,6 +9,7 @@ import {
   Bookmark,
   BadgeCheck,
 } from "lucide-react";
+import { getBookmarks, toggleBookmark } from "@/lib/bookmarks";
 
 export default function PostCard({ post }: any) {
   const [liked, setLiked] = useState(post.likedByMe);
@@ -16,6 +17,7 @@ export default function PostCard({ post }: any) {
   const [showHeart, setShowHeart] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [saved, setSaved] = useState(false);
+
   const [openComments, setOpenComments] = useState(false);
 
   const comments = [
@@ -44,6 +46,11 @@ export default function PostCard({ post }: any) {
     };
   }, [openComments]);
 
+  useEffect(() => {
+    const savedPosts = getBookmarks();
+    setSaved(savedPosts.includes(post.id));
+  }, []);
+
   const toggleLike = () => {
     const newLiked = !liked;
 
@@ -66,6 +73,11 @@ export default function PostCard({ post }: any) {
     setTimeout(() => {
       setShowHeart(false);
     }, 600);
+  };
+
+  const handleSave = () => {
+    const updated = toggleBookmark(post.id);
+    setSaved(updated.includes(post.id));
   };
 
   return (
@@ -170,14 +182,12 @@ export default function PostCard({ post }: any) {
 
           {/* SAVE */}
           <button
-            onClick={() => setSaved(!saved)}
+            onClick={handleSave}
             className="transition active:scale-90"
           >
             <Bookmark
               size={23}
-              className={
-                saved ? "fill-foreground" : ""
-              }
+              className={saved ? "fill-foreground" : ""}
             />
           </button>
 
