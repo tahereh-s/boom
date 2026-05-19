@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export type Post = {
   id: number;
@@ -16,25 +17,63 @@ export type Post = {
   } | null;
 };
 
-type PostStore = {
-  posts: Post[];
-  addPost: (post: Post) => void;
-  removePost: (id: number) => void;
-  setPosts: (posts: Post[]) => void;
+export type Story = {
+  id: number;
+  user: string;
+  avatar: string;
+  image: string;
+  createdAt: number;
 };
 
-export const usePostStore = create<PostStore>((set) => ({
-  posts: [],
+type PostStore = {
+  posts: Post[];
+  stories: Story[];
 
-  setPosts: (posts) => set({ posts }),
+  addPost: (post: Post) => void;
+  removePost: (id: number) => void;
 
-  addPost: (post) =>
-    set((state) => ({
-      posts: [post, ...state.posts],
-    })),
+  addStory: (story: Story) => void;
+};
 
-  removePost: (id) =>
-    set((state) => ({
-      posts: state.posts.filter((p) => p.id !== id),
-    })),
-}));
+export const usePostStore = create<PostStore>()(
+  persist(
+    (set) => ({
+      posts: [],
+
+      stories: [
+        {
+          id: 1,
+          user: "tahereh",
+          avatar: "https://i.pravatar.cc/150?img=12",
+          image: "https://picsum.photos/500/800?1",
+          createdAt: Date.now(),
+        },
+        {
+          id: 2,
+          user: "ali",
+          avatar: "https://i.pravatar.cc/150?img=15",
+          image: "https://picsum.photos/500/800?2",
+          createdAt: Date.now(),
+        },
+      ],
+
+      addPost: (post) =>
+        set((state) => ({
+          posts: [post, ...state.posts],
+        })),
+
+      removePost: (id) =>
+        set((state) => ({
+          posts: state.posts.filter((p) => p.id !== id),
+        })),
+
+      addStory: (story) =>
+        set((state) => ({
+          stories: [story, ...state.stories],
+        })),
+    }),
+    {
+      name: "post-storage",
+    }
+  )
+);
