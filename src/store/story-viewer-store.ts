@@ -1,9 +1,14 @@
+"use client";
+
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type StoryViewerStore = {
   activeIndex: number | null;
 
-  openStory: (index: number) => void;
+  seenStories: number[];
+
+  openStory: (storyId: number, index: number) => void;
 
   closeStory: () => void;
 
@@ -12,42 +17,53 @@ type StoryViewerStore = {
   prevStory: () => void;
 };
 
-export const useStoryViewer = create<StoryViewerStore>(
-  (set, get) => ({
-    activeIndex: null,
+export const useStoryViewer = create<StoryViewerStore>()(
+  persist(
+    (set, get) => ({
+      activeIndex: null,
 
-    openStory: (index) =>
-      set({
-        activeIndex: index,
-      }),
+      seenStories: [],
 
-    closeStory: () =>
-      set({
-        activeIndex: null,
-      }),
+      openStory: (storyId, index) =>
+        set((state) => ({
+          activeIndex: index,
 
-    nextStory: (max) => {
-      const current = get().activeIndex;
+          seenStories: state.seenStories.includes(storyId)
+            ? state.seenStories
+            : [...state.seenStories, storyId],
+        })),
 
-      if (current === null) return;
-
-      if (current < max - 1) {
+      closeStory: () =>
         set({
-          activeIndex: current + 1,
-        });
-      }
-    },
+          activeIndex: null,
+        }),
 
-    prevStory: () => {
-      const current = get().activeIndex;
+      nextStory: (max) => {
+        const current = get().activeIndex;
 
-      if (current === null) return;
+        if (current === null) return;
 
-      if (current > 0) {
-        set({
-          activeIndex: current - 1,
-        });
-      }
-    },
-  })
+        if (current < max - 1) {
+          set({
+            activeIndex: current + 1,
+          });
+        }
+      },
+
+      prevStory: () => {
+        const current = get().activeIndex;
+
+        if (current === null) return;
+
+        if (current > 0) {
+          set({
+            activeIndex: current - 1,
+          });
+        }
+      },
+    }),
+    {
+      name: "story-viewer-storage",
+    }
+  )
 );

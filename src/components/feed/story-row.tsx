@@ -7,7 +7,7 @@ export default function StoryRow() {
   const stories = usePostStore((s) => s.stories);
 
   const openStory = useStoryViewer((s) => s.openStory);
-
+  const seenStories = useStoryViewer((s) => s.seenStories);
   return (
     <div className="no-scrollbar flex gap-4 overflow-x-auto py-4">
 
@@ -25,33 +25,43 @@ export default function StoryRow() {
       </div>
 
       {/* STORIES */}
-      {stories.map((story, index) => (
-        <button
-          key={story.id}
-          onClick={() => openStory(index)}
-          className="flex shrink-0 flex-col items-center gap-2"
-        >
+      {stories.map((story, index) => {
+        const seen = seenStories.includes(story.id);
 
-          <div className="rounded-full bg-gradient-to-tr from-orange-400 via-pink-500 to-purple-600 p-[2px]">
+        return (
+          <button
+            key={story.id}
+            onClick={() => openStory(story.id, index)}
+            className="flex shrink-0 flex-col items-center gap-2"
+          >
 
-            <div className="h-16 w-16 overflow-hidden rounded-full border-2 border-background">
+            <div
+              className={`rounded-full p-[2px]
+        ${seen
+                  ? "bg-muted"
+                  : "bg-gradient-to-tr from-orange-400 via-pink-500 to-purple-600"
+                }`}
+            >
 
-              <img
-                src={story.avatar}
-                alt={story.user}
-                className="h-full w-full object-cover"
-              />
+              <div className="h-16 w-16 overflow-hidden rounded-full border-2 border-background">
+
+                <img
+                  src={story.avatar}
+                  alt={story.user}
+                  className="h-full w-full object-cover"
+                />
+
+              </div>
 
             </div>
 
-          </div>
+            <span className="w-16 truncate text-center text-xs">
+              @{story.user}
+            </span>
 
-          <span className="w-16 truncate text-center text-xs">
-            @{story.user}
-          </span>
-
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }
