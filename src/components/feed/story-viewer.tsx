@@ -27,6 +27,9 @@ export default function StoryViewer() {
 
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
 
   // AUTO PROGRESS
   useEffect(() => {
@@ -61,13 +64,49 @@ export default function StoryViewer() {
 
   const story = stories[activeIndex];
 
+
+  const handleSwipe = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+
+    const isLeftSwipe = distance > minSwipeDistance;
+
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextStory(stories.length);
+    }
+
+    if (isRightSwipe) {
+      prevStory();
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-[99999] bg-black"
+
       onMouseDown={() => setPaused(true)}
       onMouseUp={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setPaused(false)}
+
+      onTouchStart={(e) => {
+        setPaused(true);
+
+        setTouchEnd(null);
+
+        setTouchStart(e.targetTouches[0].clientX);
+      }}
+
+      onTouchMove={(e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+      }}
+
+      onTouchEnd={() => {
+        setPaused(false);
+
+        handleSwipe();
+      }}
     >
 
       {/* IMAGE */}
