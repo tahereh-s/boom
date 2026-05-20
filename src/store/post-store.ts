@@ -1,3 +1,5 @@
+"use client";
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -29,6 +31,8 @@ type PostStore = {
   posts: Post[];
   stories: Story[];
 
+  setPosts: (posts: Post[]) => void;
+  addPosts: (newPosts: Post[]) => void;
   addPost: (post: Post) => void;
   removePost: (id: number) => void;
 
@@ -39,7 +43,6 @@ export const usePostStore = create<PostStore>()(
   persist(
     (set) => ({
       posts: [],
-
       stories: [
         {
           id: 1,
@@ -56,6 +59,15 @@ export const usePostStore = create<PostStore>()(
           createdAt: Date.now(),
         },
       ],
+
+      setPosts: (posts) => set({ posts }),
+
+      addPosts: (newPosts) =>
+        set((state) => {
+          const existingIds = new Set(state.posts.map((p) => p.id));
+          const filtered = newPosts.filter((p) => !existingIds.has(p.id));
+          return { posts: [...state.posts, ...filtered] };
+        }),
 
       addPost: (post) =>
         set((state) => ({

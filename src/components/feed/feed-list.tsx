@@ -1,57 +1,63 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import PostCard from "./post-card";
 import { getPosts } from "@/lib/get-posts";
 import { usePostStore } from "@/store/post-store";
 
 export default function FeedList() {
   const posts = usePostStore((state) => state.posts);
-  const addPost = usePostStore((state) => state.addPost);
-const setPosts = usePostStore((state) => state.setPosts);
+  const setPosts = usePostStore((state) => state.setPosts);
+  const addPosts = usePostStore((state) => state.addPosts); // ← New bulk add
+
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  const loadPosts = async () => {
+  // Reset store on mount (important for development)
+  useEffect(() => {
+    setPosts([]); // Clear persisted posts on fresh load
+  }, [setPosts]);
+
+  const loadPosts = useCallback(async (isInitial = false) => {
     if (loading || !hasMore) return;
 
     setLoading(true);
 
-    const newPosts = await getPosts(page, 2);
+    try {
+      const newPosts = await getPosts(page, 2);
 
-    if (newPosts.length === 0) {
-      setHasMore(false);
-    } else {
-      newPosts.forEach((p: any) => addPost(p));
-      setPage((prev) => prev + 1);
+      if (newPosts.length === 0) {
+        setHasMore(false);
+      } else {
+        if (isInitial) {
+          setPosts(newPosts);
+        } else {
+          addPosts(newPosts);           // ← Use bulk add
+        }
+        setPage((prev) => prev + 1);
+      }
+    } finally {
+      setLoading(false);
     }
+  }, [page, loading, hasMore, setPosts, addPosts]);
 
-    setLoading(false);
-  };
-
+  // Initial load
   useEffect(() => {
-    loadPosts();
-  }, []);
+    loadPosts(true);
+  }, []); // Empty dependency → runs only once
 
-useEffect(() => {
-  const init = async () => {
-    const firstPosts = await getPosts(1, 2);
-    setPosts(firstPosts);
-    setPage(2);
-  };
-  init();
-}, []);
+  // Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          loadPosts();
+        if (entries[0].isIntersecting && !loading && hasMore) {
+          loadPosts(false);
         }
       },
-      { threshold: 1 }
+      { threshold: 0.1 }
     );
 
     if (loaderRef.current) {
@@ -59,7 +65,7 @@ useEffect(() => {
     }
 
     return () => observer.disconnect();
-  }, [loaderRef.current, page, loading]);
+  }, [loadPosts, loading, hasMore]);
 
   return (
     <div className="space-y-4 py-4 pb-24">
@@ -68,11 +74,8 @@ useEffect(() => {
       ))}
 
       <div ref={loaderRef} className="h-10 flex items-center justify-center">
-        {loading && (
-          <p className="text-sm text-muted-foreground">
-            در حال بارگذاری...
-          </p>
-        )}
+        {loading && <p className="text-sm text-muted-foreground">در حال بارگذاری...</p>}
+        {!hasMore && posts.length > 0 && <p className="text-sm text-muted-foreground">پایان فید</p>}
       </div>
     </div>
   );
